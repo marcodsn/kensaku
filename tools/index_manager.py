@@ -7,7 +7,7 @@ import numpy as np
 
 
 def make_index(path, embedder, index_name, batch_size=100000):
-    index = faiss.IndexFlatL2(embedder().encode([""]).shape[1])
+    index = faiss.IndexFlatL2(embedder.encode([""]).shape[1])
     files = [f for f in os.listdir(path) if f.endswith(".json")]
 
     for i in range(0, len(files), batch_size):
@@ -26,3 +26,15 @@ def make_index(path, embedder, index_name, batch_size=100000):
 
     faiss.write_index(index, index_name)
     print("Index saved.")
+
+
+def get_most_relevant(filename, query_embeddings, embedder, n_results=2):
+    index = faiss.IndexFlatL2(embedder.encode([""]).shape[1])
+    with open(filename, "r") as f:
+        sentences = json.load(f)["text"].split(". ")
+        sentences_embeddings = embedder.encode(sentences)
+        index.add(sentences_embeddings)
+        D, I = index.search(query_embeddings, n_results)
+        retrieved_sentences = [sentences[i] for i in I[0]]
+        # print("Retrieved sentences:", retrieved_sentences)
+    return retrieved_sentences

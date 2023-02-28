@@ -4,9 +4,11 @@ import sys
 import faiss
 
 from models import embedders
+from models import llm
 from tools import index_manager
 
 embedder = embedders.MiniLM("cuda")
+print("Embedder loaded.")
 
 # Index generation
 idx_gen = False
@@ -26,9 +28,31 @@ if idx_gen:
 
 # Index loading
 index = faiss.read_index("indexes/" + path.split("/")[-1] + ".faiss")
+print("Index loaded. Articles:", index.ntotal)
 
-# Query loop
+# Load files list
+with open("indexes/" + path.split("/")[-1] + ".faiss.txt", "r") as f:
+    files = f.read().splitlines()
+print("Files list loaded. Files:", len(files))
+
+# Model chat loop
+model = llm.Pythia()
+print("Model loaded.")
+
+history = "This is a chat between a human and an AI. The human asks questions and the AI answers them. If the answer is not contained in the retrieved knowledge the AI should answer: \"Sorry but I don\'t have enough data to answer this question.\"\n"
+history += "Human: What is the capital of France? EXTERNAL KNOWLEDGE: Paris is the capital and most populous city of France.\n" \
+          "AI: Paris is the capital of France.\n"
+
 while True:
-    query = input("Enter your query: ")
+    query = input("You: ")
     res = embedder.encode([query])
-    print(res.shape)
+    D, I = index.search(res, 2)
+    I = [files[i] for i in I[0]]
+    knowledge = ""
+    # print("Retrieved articles:", I)
+    for i in I:
+        for sentence in index_manager.get_most_relevant(path + "/" + i, res, embedder, n_results=1):
+            # print("Retrieved sentence:", sentence)
+            knowledge += sentence + ". "
+    print("Retrieved knowledge:", knowledge)
+    print("AI:" + model.generate(query, history, knowledge))
