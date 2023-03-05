@@ -2,3 +2,4 @@ faiss
 transformers
 numpy
 sentence-transformers
+bitsandbytes
