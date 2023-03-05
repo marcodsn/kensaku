@@ -1,0 +1,4 @@
+faiss
+transformers
+numpy
+sentence-transformers
