@@ -37,11 +37,14 @@ print("Files list loaded. Files:", len(files))
 
 # Model chat loop
 model = llm.Pythia()
-print("Model loaded.")
+print("Model loaded.\n")
 
 history = "This is a chat between a human and an AI. The human asks questions and the AI answers them. If the answer is not contained in the retrieved knowledge the AI should answer: \"Sorry but I don\'t have enough data to answer this question.\"\n"
 history += "Human: What is the capital of France? EXTERNAL KNOWLEDGE: Paris is the capital and most populous city of France.\n" \
           "AI: Paris is the capital of France.\n"
+
+history += "Human: What is Earth atmosphere composed of? EXTERNAL KNOWLEDGE: The three major constituents of Earth's atmosphere are nitrogen, oxygen, and argon. The atmosphere of Earth is composed of nitrogen (78%), oxygen (21%), argon (0.9%), carbon dioxide (0.04%) and trace gases.\n" \
+            "AI: The atmosphere of Earth is composed of nitrogen (78%), oxygen (21%), argon (0.9%), carbon dioxide (0.04%) and trace gases.\n"
 
 while True:
     query = input("You: ")
